@@ -18,7 +18,7 @@ private:
 
 private slots:
     void about();
-    void addAlbum();
+    void addOrder();
     void notificationHandler(const QString &name);
 
 private:

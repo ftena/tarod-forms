@@ -91,10 +91,11 @@ QSqlError initDb()
         return db.lastError();
 
     /* TESTING */
-    // TODO: remove after testing
+    // TODO: remove after testing    
     QSqlQuery qTesting;
     if (!qTesting.exec(QLatin1String("DROP TABLE IF EXISTS orders, suppliers, products")))
         return qTesting.lastError();
+
 
     QStringList tables = db.tables();
     if (tables.contains("orders", Qt::CaseInsensitive)

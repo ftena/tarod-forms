@@ -61,10 +61,11 @@ MainWindow::MainWindow()
     ui.bookTable->setColumnHidden(model->fieldIndex("id"), true);
     ui.bookTable->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    // Initialize the Author combo box
+    // Initialize the supplier combo box with the model
     ui.supplierEdit->setModel(model->relationModel(supplierIdx));
     ui.supplierEdit->setModelColumn(model->relationModel(supplierIdx)->fieldIndex("name"));
 
+    // Initialize the product combo box with the model
     ui.productEdit->setModel(model->relationModel(productIdx));
     ui.productEdit->setModelColumn(model->relationModel(productIdx)->fieldIndex("name"));
 
@@ -82,6 +83,9 @@ MainWindow::MainWindow()
 
     ui.bookTable->setCurrentIndex(model->index(0, 0));
 
+    connect(ui.addOrderButton, &QPushButton::clicked,
+            this, &MainWindow::addOrder);
+
     createMenuBar();
 }
 
@@ -93,8 +97,43 @@ void MainWindow::about()
                "<p>Versión 0.0.1</p>"));
 }
 
-void MainWindow::addAlbum()
+void MainWindow::addOrder()
 {
+    QSqlRecord record = model->record();
+
+    /*
+     * name varchar, supplier integer, product integer, year integer, rating integer
+     */
+    // id is serial, we don't need to set this field:
+    QSqlField f0("id", QVariant::Int);
+    QSqlField f1("name", QVariant::String);
+    QSqlField f2("supplier", QVariant::Int);
+    QSqlField f3("product", QVariant::Int);
+    QSqlField f4("year", QVariant::Int);
+    QSqlField f5("rating", QVariant::Int);
+
+    // id is serial, we don't need to set this field:
+    f0.setValue(100);
+    f1.setValue(QVariant("Test1"));
+    f2.setValue(QVariant(3));
+    f3.setValue(QVariant(3));
+    f4.setValue(QVariant(2001));
+    f5.setValue(QVariant(5));
+
+    record.append(f0);
+    record.append(f1);
+    record.append(f2);
+    record.append(f3);
+    record.append(f4);
+    record.append(f5);
+
+    if (model->insertRecord(-1, record))
+    {
+        qDebug() << Q_FUNC_INFO << " OK ";
+    } else {
+        qDebug() << Q_FUNC_INFO << " NO OK " << model->lastError().text();
+    }
+
     /* TODO
     Dialog *dialog = new Dialog(model, albumData, file, this);
     int accepted = dialog->exec();
@@ -120,26 +159,26 @@ void MainWindow::notificationHandler(const QString &name)
 
 void MainWindow::createMenuBar()
 {
-    QAction *addAction = new QAction(tr("&Productos..."), this);
-    QAction *deleteAction = new QAction(tr("&Proveedores..."), this);
+    QAction *productsAction = new QAction(tr("&Productos..."), this);
+    QAction *suppliersAction = new QAction(tr("&Proveedores..."), this);
     QAction *quitAction = new QAction(tr("&Salir"), this);
     QAction *aboutAction = new QAction(tr("&Acerca de"), this);
 
-    addAction->setShortcut(tr("Ctrl+A"));
-    deleteAction->setShortcut(tr("Ctrl+D"));
+    productsAction->setShortcut(tr("Ctrl+A"));
+    suppliersAction->setShortcut(tr("Ctrl+D"));
     quitAction->setShortcuts(QKeySequence::Quit);
 
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(addAction);
-    fileMenu->addAction(deleteAction);
+    fileMenu->addAction(productsAction);
+    fileMenu->addAction(suppliersAction);
     fileMenu->addSeparator();
     fileMenu->addAction(quitAction);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Ayuda"));
     helpMenu->addAction(aboutAction);    
 
-    connect(addAction, SIGNAL(triggered(bool)), this, SLOT(addAlbum()));
-    connect(deleteAction, SIGNAL(triggered(bool)), this, SLOT(deleteAlbum()));
+    connect(productsAction, SIGNAL(triggered(bool)), this, SLOT(addAlbum()));
+    connect(suppliersAction, SIGNAL(triggered(bool)), this, SLOT(deleteAlbum()));
     connect(quitAction, SIGNAL(triggered(bool)), this, SLOT(close()));
     connect(aboutAction, SIGNAL(triggered(bool)), this, SLOT(about()));
 }
