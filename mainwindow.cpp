@@ -102,9 +102,8 @@ void MainWindow::addOrder()
     QSqlRecord record = model->record();
 
     /*
-     * name varchar, supplier integer, product integer, year integer, rating integer
+     * id serial, name varchar, supplier integer, product integer, year integer, rating integer
      */
-    // id is serial, we don't need to set this field:
     QSqlField f0("id", QVariant::Int);
     QSqlField f1("name", QVariant::String);
     QSqlField f2("supplier", QVariant::Int);
@@ -112,8 +111,19 @@ void MainWindow::addOrder()
     QSqlField f4("year", QVariant::Int);
     QSqlField f5("rating", QVariant::Int);
 
-    // id is serial, we don't need to set this field:
-    f0.setValue(100);
+    // get next value for the id sequence
+    QSqlQuery q;
+    if(!q.exec("SELECT nextval(pg_get_serial_sequence('orders', 'id'))"))
+    {
+        showError(q.lastError());
+        return;
+    } else {
+        while (q.next()) {
+            int lastId = q.value(0).toInt();
+            f0.setValue(lastId);
+        }
+    }
+
     f1.setValue(QVariant("Test1"));
     f2.setValue(QVariant(3));
     f3.setValue(QVariant(3));
