@@ -2,13 +2,16 @@ TEMPLATE = app
 INCLUDEPATH += .
 
 HEADERS     = bookdelegate.h initdb.h \
-    mainwindow.h
+    mainwindow.h \
+    addorderwindow.h
 RESOURCES   = \
     tarod_forms.qrc
 SOURCES     = bookdelegate.cpp main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    addorderwindow.cpp
 FORMS       = \
-    mainwindow.ui
+    mainwindow.ui \
+    addorderwindow.ui
 
 QT += sql widgets widgets
 

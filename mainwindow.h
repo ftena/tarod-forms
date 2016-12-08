@@ -1,16 +1,20 @@
 #ifndef BOOKWINDOW_H
 #define BOOKWINDOW_H
 
+#include <memory>
 #include <QtWidgets>
 #include <QtSql>
 
 #include "ui_mainwindow.h"
+
+class AddOrderWindow;
 
 class MainWindow: public QMainWindow
 {
     Q_OBJECT
 public:
     MainWindow();
+    ~MainWindow();
 
 private:    
     void createMenuBar();
@@ -23,6 +27,7 @@ private slots:
 
 private:
     Ui::MainWindow ui;
+    std::unique_ptr<AddOrderWindow> addOrderWindow;
     QSqlRelationalTableModel *model;
     int supplierIdx, productIdx;
 };

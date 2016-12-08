@@ -1,12 +1,21 @@
 #include "mainwindow.h"
+#include "addorderwindow.h"
 #include "bookdelegate.h"
 #include "initdb.h"
 
 #include <QtSql>
 
-MainWindow::MainWindow()
+MainWindow::MainWindow(): addOrderWindow(new AddOrderWindow(this))
 {
     ui.setupUi(this);
+
+    /*
+     * If we don't set the flag Qt::Window but we set the MainWindow
+     * as parent of AddOrderWindow (see below), AddOrderWindow becomes a child
+     * of the main window and would be added inside the main window
+     * instead of a separate window.
+     */
+    addOrderWindow->setWindowFlags(Qt::Window);
 
     if (!QSqlDatabase::drivers().contains("QPSQL"))
         QMessageBox::critical(this, "Unable to load database", "QPSQL driver not found");
@@ -89,6 +98,11 @@ MainWindow::MainWindow()
     createMenuBar();
 }
 
+MainWindow::~MainWindow()
+{
+
+}
+
 void MainWindow::about()
 {
     QMessageBox::about(this, tr("Acerca de Forms"),
@@ -99,6 +113,8 @@ void MainWindow::about()
 
 void MainWindow::addOrder()
 {
+    addOrderWindow->show();
+
     QSqlRecord record = model->record();
 
     /*
