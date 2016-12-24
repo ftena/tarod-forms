@@ -27,9 +27,9 @@ private slots:
 
 private:
     Ui::MainWindow ui;
-    std::unique_ptr<AddOrderWindow> addOrderWindow;
-    QSqlRelationalTableModel *model;
-    int supplierIdx, productIdx;
+    std::unique_ptr<AddOrderWindow> addOrderWindow_;
+    std::shared_ptr<QSqlRelationalTableModel> model_;
+    int supplierIdx_, productIdx_;
 };
 
 #endif

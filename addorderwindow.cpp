@@ -12,3 +12,9 @@ AddOrderWindow::~AddOrderWindow()
 {
     delete ui;
 }
+
+void AddOrderWindow::init(std::shared_ptr<QSqlRelationalTableModel> model)
+{
+    model_ = model;
+
+}
