@@ -33,7 +33,7 @@
     <item>
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
-       <string>Pedidos</string>
+       <string>Orders</string>
       </property>
       <layout class="QVBoxLayout">
        <property name="spacing">
@@ -52,7 +52,7 @@
         <number>9</number>
        </property>
        <item>
-        <widget class="QTableView" name="bookTable">
+        <widget class="QTableView" name="orderTable">
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
@@ -67,12 +67,12 @@
           <item row="0" column="0">
            <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>&lt;b&gt;Title:&lt;/b&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Order:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="titleEdit">
+           <widget class="QLineEdit" name="orderEdit">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -167,7 +167,7 @@
       <item>
        <widget class="QPushButton" name="addOrderButton">
         <property name="text">
-         <string>Añadir pedido</string>
+         <string>Add order</string>
         </property>
        </widget>
       </item>
@@ -187,7 +187,7 @@
       <item>
        <widget class="QPushButton" name="deleteOrderButton">
         <property name="text">
-         <string>Eliminar pedido</string>
+         <string>Delete order</string>
         </property>
        </widget>
       </item>
@@ -210,8 +210,8 @@
   </widget>
  </widget>
  <tabstops>
-  <tabstop>bookTable</tabstop>
-  <tabstop>titleEdit</tabstop>
+  <tabstop>orderTable</tabstop>
+  <tabstop>orderEdit</tabstop>
   <tabstop>supplierEdit</tabstop>
   <tabstop>productEdit</tabstop>
   <tabstop>yearEdit</tabstop>

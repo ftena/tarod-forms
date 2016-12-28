@@ -33,7 +33,7 @@ MainWindow::MainWindow(): addOrderWindow_(new AddOrderWindow(this))
             this, SLOT(notificationHandler(const QString&)));
 
     // Create the data model
-    model_ = std::shared_ptr<QSqlRelationalTableModel>(new QSqlRelationalTableModel(ui.bookTable));
+    model_ = std::shared_ptr<QSqlRelationalTableModel>(new QSqlRelationalTableModel(ui.orderTable));
     //TODO: confirm! model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model_->setEditStrategy(QSqlTableModel::OnFieldChange);
     model_->setTable("orders");
@@ -64,10 +64,10 @@ MainWindow::MainWindow(): addOrderWindow_(new AddOrderWindow(this))
     }
 
     // Set the model and hide the ID column
-    ui.bookTable->setModel(model_.get());
-    ui.bookTable->setItemDelegate(new BookDelegate(ui.bookTable));
-    ui.bookTable->setColumnHidden(model_->fieldIndex("id"), true);
-    ui.bookTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui.orderTable->setModel(model_.get());
+    ui.orderTable->setItemDelegate(new BookDelegate(ui.orderTable));
+    ui.orderTable->setColumnHidden(model_->fieldIndex("id"), true);
+    ui.orderTable->setSelectionMode(QAbstractItemView::SingleSelection);
 
     // Initialize the supplier combo box with the model
     ui.supplierEdit->setModel(model_->relationModel(supplierIdx_));
@@ -80,19 +80,19 @@ MainWindow::MainWindow(): addOrderWindow_(new AddOrderWindow(this))
     QDataWidgetMapper *mapper = new QDataWidgetMapper(this);
     mapper->setModel(model_.get());
     mapper->setItemDelegate(new BookDelegate(this));
-    mapper->addMapping(ui.titleEdit, model_->fieldIndex("name"));
+    mapper->addMapping(ui.orderEdit, model_->fieldIndex("name"));
     mapper->addMapping(ui.yearEdit, model_->fieldIndex("year"));
     mapper->addMapping(ui.supplierEdit, supplierIdx_);
     mapper->addMapping(ui.productEdit, productIdx_);
     mapper->addMapping(ui.ratingEdit, model_->fieldIndex("rating"));
 
-    connect(ui.bookTable->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+    connect(ui.orderTable->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             mapper, SLOT(setCurrentModelIndex(QModelIndex)));
 
-    ui.bookTable->setCurrentIndex(model_->index(0, 0));
+    ui.orderTable->setCurrentIndex(model_->index(0, 0));
 
     // Init the Add Order Window with the model and the view
-    addOrderWindow_->init(model_, ui.bookTable);
+    addOrderWindow_->init(model_, ui.orderTable);
 
     connect(ui.addOrderButton, &QPushButton::clicked,
             this, &MainWindow::addOrder);
@@ -107,10 +107,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::about()
 {
-    QMessageBox::about(this, tr("Acerca de Forms"),
-            tr("<p>Soporte - fran.tena@outlook.com</p>"
-               "<p>Creado por <b>www.tarod.net</b></p>"
-               "<p>Versión 0.0.1</p>"));
+    QMessageBox::about(this, tr("About Forms"),
+            tr("<p>Support - fran.tena@outlook.com</p>"
+               "<p>Developed by <b>www.tarod.net</b></p>"
+               "<p>0.0.1</p>"));
 }
 
 void MainWindow::addOrder()
@@ -130,10 +130,10 @@ void MainWindow::notificationHandler(const QString &name)
 
 void MainWindow::createMenuBar()
 {
-    QAction *productsAction = new QAction(tr("&Productos..."), this);
-    QAction *suppliersAction = new QAction(tr("&Proveedores..."), this);
-    QAction *quitAction = new QAction(tr("&Salir"), this);
-    QAction *aboutAction = new QAction(tr("&Acerca de"), this);
+    QAction *productsAction = new QAction(tr("&Products..."), this);
+    QAction *suppliersAction = new QAction(tr("&Suppliers..."), this);
+    QAction *quitAction = new QAction(tr("&Exit"), this);
+    QAction *aboutAction = new QAction(tr("&About"), this);
 
     productsAction->setShortcut(tr("Ctrl+A"));
     suppliersAction->setShortcut(tr("Ctrl+D"));
