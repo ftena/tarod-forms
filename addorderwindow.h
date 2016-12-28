@@ -5,6 +5,7 @@
 #include <QWidget>
 
 class QSqlRelationalTableModel;
+class QTableView;
 
 namespace Ui {
 class AddOrderWindow;
@@ -17,11 +18,17 @@ class AddOrderWindow : public QWidget
 public:
     explicit AddOrderWindow(QWidget *parent = 0);
     ~AddOrderWindow();
-    void init(std::shared_ptr<QSqlRelationalTableModel> model);
+    void init(std::shared_ptr<QSqlRelationalTableModel> model, QTableView *tableView);
+
+private slots:
+    void on_buttonBox_accepted();
+
+    void on_buttonBox_rejected();
 
 private:
     Ui::AddOrderWindow *ui;
     std::shared_ptr<QSqlRelationalTableModel> model_;
+    QTableView *tableView_;
 };
 
 #endif // ADDORDERWINDOW_H

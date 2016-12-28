@@ -3,7 +3,8 @@ INCLUDEPATH += .
 
 HEADERS     = bookdelegate.h initdb.h \
     mainwindow.h \
-    addorderwindow.h
+    addorderwindow.h \
+    tools.h
 RESOURCES   = \
     tarod_forms.qrc
 SOURCES     = bookdelegate.cpp main.cpp \

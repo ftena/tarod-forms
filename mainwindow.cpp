@@ -2,8 +2,7 @@
 #include "addorderwindow.h"
 #include "bookdelegate.h"
 #include "initdb.h"
-
-#include <QtSql>
+#include "tools.h"
 
 MainWindow::MainWindow(): addOrderWindow_(new AddOrderWindow(this))
 {
@@ -92,8 +91,8 @@ MainWindow::MainWindow(): addOrderWindow_(new AddOrderWindow(this))
 
     ui.bookTable->setCurrentIndex(model_->index(0, 0));
 
-    // Init the Add Order Window with the model
-    addOrderWindow_->init(model_);
+    // Init the Add Order Window with the model and the view
+    addOrderWindow_->init(model_, ui.bookTable);
 
     connect(ui.addOrderButton, &QPushButton::clicked,
             this, &MainWindow::addOrder);
@@ -117,67 +116,6 @@ void MainWindow::about()
 void MainWindow::addOrder()
 {
     addOrderWindow_->show();
-
-    QSqlRecord record = model_->record();
-
-    /*
-     * id serial, name varchar, supplier integer, product integer, year integer, rating integer
-     */
-    QSqlField f0("id", QVariant::Int);
-    QSqlField f1("name", QVariant::String);
-    QSqlField f2("supplier", QVariant::Int);
-    QSqlField f3("product", QVariant::Int);
-    QSqlField f4("year", QVariant::Int);
-    QSqlField f5("rating", QVariant::Int);
-
-    // get next value for the id sequence
-    QSqlQuery q;
-    if(!q.exec("SELECT nextval(pg_get_serial_sequence('orders', 'id'))"))
-    {
-        showError(q.lastError());
-        return;
-    } else {
-        if (q.next()) {
-            int lastId = q.value(0).toInt();
-            f0.setValue(lastId);
-        }
-        else {
-            showError(q.lastError());
-            return;
-        }
-    }
-
-    f1.setValue(QVariant("Test1"));
-    f2.setValue(QVariant(3));
-    f3.setValue(QVariant(3));
-    f4.setValue(QVariant(2001));
-    f5.setValue(QVariant(5));
-
-    record.append(f0);
-    record.append(f1);
-    record.append(f2);
-    record.append(f3);
-    record.append(f4);
-    record.append(f5);
-
-    if (model_->insertRecord(-1, record))
-    {
-        qDebug() << Q_FUNC_INFO << " OK ";
-    } else {
-        qDebug() << Q_FUNC_INFO << " NO OK " << model_->lastError().text();
-    }
-
-    /* TODO
-    Dialog *dialog = new Dialog(model, albumData, file, this);
-    int accepted = dialog->exec();
-
-    if (accepted == 1) {
-        int lastRow = model->rowCount() - 1;
-        albumView->selectRow(lastRow);
-        albumView->scrollToBottom();
-        showAlbumDetails(model->index(lastRow, 0));
-    }
-    */
 }
 
 void MainWindow::notificationHandler(const QString &name)
@@ -221,4 +159,3 @@ void MainWindow::showError(const QSqlError &err)
     QMessageBox::critical(this, "Unable to initialize Database",
                 "Error initializing database: " + err.text());
 }
-

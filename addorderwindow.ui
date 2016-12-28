@@ -36,7 +36,7 @@
      <number>12</number>
     </property>
     <item row="0" column="0">
-     <widget class="QLabel" name="nameLabel_2">
+     <widget class="QLabel" name="nameLabel">
       <property name="text">
        <string>Name:</string>
       </property>
@@ -126,28 +126,9 @@
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
       </property>
-      <property name="buddy">
-       <cstring>professionList</cstring>
-      </property>
      </widget>
     </item>
-    <item row="4" column="1">
-     <widget class="QListWidget" name="professionList">
-      <property name="toolTip">
-       <string>Select your profession</string>
-      </property>
-      <property name="statusTip">
-       <string>Specify your name here</string>
-      </property>
-      <property name="whatsThis">
-       <string>Specify your name here</string>
-      </property>
-      <property name="currentRow">
-       <number>-1</number>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="1">
+    <item row="6" column="1">
      <widget class="QDialogButtonBox" name="buttonBox">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -157,10 +138,11 @@
       </property>
      </widget>
     </item>
+    <item row="4" column="1">
+     <widget class="QListView" name="productsView"/>
+    </item>
    </layout>
   </widget>
-  <zorder>nameCombo</zorder>
-  <zorder>formLayoutWidget</zorder>
  </widget>
  <resources/>
  <connections/>
