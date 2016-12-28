@@ -71,10 +71,10 @@ QVariant addProduct(QSqlQuery &q, const QString &name)
     return q.lastInsertId();
 }
 
-QVariant addSupplier(QSqlQuery &q, const QString &name, const QDate &birthdate)
+QVariant addSupplier(QSqlQuery &q, const QString &name, const QDate &created)
 {
     q.addBindValue(name);
-    q.addBindValue(birthdate);
+    q.addBindValue(created);
     q.exec();
     return q.lastInsertId();
 }
@@ -105,38 +105,38 @@ QSqlError initDb()
     QSqlQuery q;
     if (!q.exec(QLatin1String("create table orders(id serial primary key, name varchar, supplier integer, product integer, year integer, rating integer)")))
         return q.lastError();
-    if (!q.exec(QLatin1String("create table suppliers(id serial primary key, name varchar, birthdate date)")))
+    if (!q.exec(QLatin1String("create table suppliers(id serial primary key, name varchar, created date)")))
         return q.lastError();
     if (!q.exec(QLatin1String("create table products(id serial primary key, name varchar)")))
         return q.lastError();
 
-    if (!q.prepare(QLatin1String("insert into suppliers(name, birthdate) values(?, ?)")))
+    if (!q.prepare(QLatin1String("insert into suppliers(name, created) values(?, ?)")))
         return q.lastError();
-    QVariant asimovId = addSupplier(q, QLatin1String("Isaac Asimov"), QDate(1920, 2, 1));
-    QVariant greeneId = addSupplier(q, QLatin1String("Graham Greene"), QDate(1904, 10, 2));
-    QVariant pratchettId = addSupplier(q, QLatin1String("Terry Pratchett"), QDate(1948, 4, 28));
+    QVariant supplier1Id = addSupplier(q, QLatin1String("Supplier #1"), QDate(2016, 12, 1));
+    QVariant supplier2Id = addSupplier(q, QLatin1String("Supplier #2"), QDate(2016, 12, 1));
+    QVariant supplier3Id = addSupplier(q, QLatin1String("Supplier #3"), QDate(2016, 12, 1));
 
     if (!q.prepare(QLatin1String("insert into products(name) values(?)")))
         return q.lastError();
-    QVariant sfiction = addProduct(q, QLatin1String("Science Fiction"));
-    QVariant fiction = addProduct(q, QLatin1String("Fiction"));
-    QVariant fantasy = addProduct(q, QLatin1String("Fantasy"));
+    QVariant product1 = addProduct(q, QLatin1String("Product #1"));
+    QVariant product2 = addProduct(q, QLatin1String("Product #2"));
+    QVariant product3 = addProduct(q, QLatin1String("Product #3"));
 
     if (!q.prepare(QLatin1String("insert into orders(name, year, supplier, product, rating) values(?, ?, ?, ?, ?)")))
         return q.lastError();
-    addOrder(q, QLatin1String("Foundation"), 1951, asimovId, sfiction, 3);
-    addOrder(q, QLatin1String("Foundation and Empire"), 1952, asimovId, sfiction, 4);
-    addOrder(q, QLatin1String("Second Foundation"), 1953, asimovId, sfiction, 3);
-    addOrder(q, QLatin1String("Foundation's Edge"), 1982, asimovId, sfiction, 3);
-    addOrder(q, QLatin1String("Foundation and Earth"), 1986, asimovId, sfiction, 4);
-    addOrder(q, QLatin1String("Prelude to Foundation"), 1988, asimovId, sfiction, 3);
-    addOrder(q, QLatin1String("Forward the Foundation"), 1993, asimovId, sfiction, 3);
-    addOrder(q, QLatin1String("The Power and the Glory"), 1940, greeneId, fiction, 4);
-    addOrder(q, QLatin1String("The Third Man"), 1950, greeneId, fiction, 5);
-    addOrder(q, QLatin1String("Our Man in Havana"), 1958, greeneId, fiction, 4);
-    addOrder(q, QLatin1String("Guards! Guards!"), 1989, pratchettId, fantasy, 3);
-    addOrder(q, QLatin1String("Night Watch"), 2002, pratchettId, fantasy, 3);
-    addOrder(q, QLatin1String("Going Postal"), 2004, pratchettId, fantasy, 3);
+    addOrder(q, QLatin1String("Foundation"), 2012, supplier1Id, product1, 3);
+    addOrder(q, QLatin1String("Foundation and Empire"), 2012, supplier1Id, product1, 4);
+    addOrder(q, QLatin1String("Second Foundation"), 2012, supplier1Id, product1, 3);
+    addOrder(q, QLatin1String("Foundation's Edge"), 2012, supplier1Id, product1, 3);
+    addOrder(q, QLatin1String("Foundation and Earth"), 2012, supplier1Id, product1, 4);
+    addOrder(q, QLatin1String("Prelude to Foundation"), 2012, supplier1Id, product1, 3);
+    addOrder(q, QLatin1String("Forward the Foundation"), 2012, supplier1Id, product1, 3);
+    addOrder(q, QLatin1String("The Power and the Glory"), 2012, supplier2Id, product2, 4);
+    addOrder(q, QLatin1String("The Third Man"), 2012, supplier2Id, product2, 5);
+    addOrder(q, QLatin1String("Our Man in Havana"), 2012, supplier2Id, product2, 4);
+    addOrder(q, QLatin1String("Guards! Guards!"), 2013, supplier3Id, product3, 3);
+    addOrder(q, QLatin1String("Night Watch"), 2014, supplier3Id, product3, 3);
+    addOrder(q, QLatin1String("Going Postal"), 2015, supplier3Id, product3, 3);
 
     // Notifications
     if (!q.exec(QLatin1String("DROP RULE IF EXISTS notifications ON orders; CREATE RULE notifications AS ON UPDATE TO orders DO NOTIFY dbupdated")))
