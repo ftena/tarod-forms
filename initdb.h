@@ -64,9 +64,10 @@ void addOrder(QSqlQuery &q, const QString &name, int year, const QVariant &suppl
     q.exec();
 }
 
-QVariant addProduct(QSqlQuery &q, const QString &name)
+QVariant addProduct(QSqlQuery &q, const QString &name, double price)
 {
     q.addBindValue(name);
+    q.addBindValue(price);
     q.exec();
     return q.lastInsertId();
 }
@@ -93,7 +94,7 @@ QSqlError initDb()
     /* TESTING */
     // TODO: remove after testing    
     QSqlQuery qTesting;
-    if (!qTesting.exec(QLatin1String("DROP TABLE IF EXISTS orders, suppliers, products")))
+    if (!qTesting.exec(QLatin1String("DROP TABLE IF EXISTS orders, suppliers, products, order_items")))
         return qTesting.lastError();
 
 
@@ -103,11 +104,19 @@ QSqlError initDb()
         return QSqlError();
 
     QSqlQuery q;
-    if (!q.exec(QLatin1String("create table orders(id serial primary key, name varchar, supplier integer, product integer, year integer, rating integer)")))
+    if (!q.exec(QLatin1String("CREATE TABLE orders(id SERIAL PRIMARY KEY, name varchar, supplier integer, product integer, year integer, rating integer)")))
         return q.lastError();
-    if (!q.exec(QLatin1String("create table suppliers(id serial primary key, name varchar, created date)")))
+    if (!q.exec(QLatin1String("CREATE TABLE suppliers(id SERIAL PRIMARY KEY, name varchar, created date)")))
         return q.lastError();
-    if (!q.exec(QLatin1String("create table products(id serial primary key, name varchar)")))
+    if (!q.exec(QLatin1String("CREATE TABLE products(id SERIAL PRIMARY KEY, name varchar, price numeric)")))
+        return q.lastError();
+    // now, the many-to-many relationships between tables orders and products
+    if (!q.exec(QLatin1String("CREATE TABLE order_items("
+                              "product_id integer REFERENCES products,"
+                              "order_id integer REFERENCES orders,"
+                              "quantity integer,"
+                              "PRIMARY KEY (product_id, order_id)"
+                              ")")))
         return q.lastError();
 
     if (!q.prepare(QLatin1String("insert into suppliers(name, created) values(?, ?)")))
@@ -116,11 +125,11 @@ QSqlError initDb()
     QVariant supplier2Id = addSupplier(q, QLatin1String("Supplier #2"), QDate(2016, 12, 1));
     QVariant supplier3Id = addSupplier(q, QLatin1String("Supplier #3"), QDate(2016, 12, 1));
 
-    if (!q.prepare(QLatin1String("insert into products(name) values(?)")))
+    if (!q.prepare(QLatin1String("insert into products(name, price) values(?, ?)")))
         return q.lastError();
-    QVariant product1 = addProduct(q, QLatin1String("Product #1"));
-    QVariant product2 = addProduct(q, QLatin1String("Product #2"));
-    QVariant product3 = addProduct(q, QLatin1String("Product #3"));
+    QVariant product1 = addProduct(q, QLatin1String("Product #1"), 100.1);
+    QVariant product2 = addProduct(q, QLatin1String("Product #2"), 200.2);
+    QVariant product3 = addProduct(q, QLatin1String("Product #3"), 300.3);
 
     if (!q.prepare(QLatin1String("insert into orders(name, year, supplier, product, rating) values(?, ?, ?, ?, ?)")))
         return q.lastError();

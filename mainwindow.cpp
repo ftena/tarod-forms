@@ -48,7 +48,7 @@ MainWindow::MainWindow(): addOrderWindow_(new AddOrderWindow(this))
      * SQL foreign key.
      */
     model_->setRelation(supplierIdx_, QSqlRelation("suppliers", "id", "name"));
-    model_->setRelation(productIdx_, QSqlRelation("products", "id", "name"));
+    model_->setRelation(productIdx_, QSqlRelation("products", "id", "name"));    
 
     // Set the localized header captions
     model_->setHeaderData(supplierIdx_, Qt::Horizontal, tr("Supplier"));
