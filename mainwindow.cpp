@@ -32,67 +32,71 @@ MainWindow::MainWindow(): addOrderWindow_(new AddOrderWindow(this))
     connect(QSqlDatabase::database().driver(), SIGNAL(notification(const QString&)),
             this, SLOT(notificationHandler(const QString&)));
 
-    // Create the data model
-    model_ = std::shared_ptr<QSqlRelationalTableModel>(new QSqlRelationalTableModel(ui.orderTable));
-    //TODO: confirm! model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    model_->setEditStrategy(QSqlTableModel::OnFieldChange);
-    model_->setTable("orders");
+    // Create the data model for orders table
+    orderModel_ = std::shared_ptr<QSqlRelationalTableModel>(new QSqlRelationalTableModel(ui.orderTable));
+    //TODO: confirm! orderModel_->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    orderModel_->setEditStrategy(QSqlTableModel::OnFieldChange);
+    orderModel_->setTable("orders");
 
     // Remember the indexes of the columns
-    supplierIdx_ = model_->fieldIndex("supplier");
-    productIdx_ = model_->fieldIndex("product");
+    orderIdx_ = orderModel_->fieldIndex("id");
+    supplierIdx_ = orderModel_->fieldIndex("supplier");
+    productIdx_ = orderModel_->fieldIndex("product");
 
     // Set the relations to the other database tables
     /*
      * The QSqlRelation class stores information about an
      * SQL foreign key.
      */
-    model_->setRelation(supplierIdx_, QSqlRelation("suppliers", "id", "name"));
-    model_->setRelation(productIdx_, QSqlRelation("products", "id", "name"));    
+    orderModel_->setRelation(supplierIdx_, QSqlRelation("suppliers", "id", "name"));
+    orderModel_->setRelation(productIdx_, QSqlRelation("products", "id", "name"));
 
     // Set the localized header captions
-    model_->setHeaderData(supplierIdx_, Qt::Horizontal, tr("Supplier"));
-    model_->setHeaderData(productIdx_, Qt::Horizontal, tr("Product"));
-    model_->setHeaderData(model_->fieldIndex("name"), Qt::Horizontal, tr("Name"));
-    model_->setHeaderData(model_->fieldIndex("year"), Qt::Horizontal, tr("Year"));
-    model_->setHeaderData(model_->fieldIndex("rating"), Qt::Horizontal, tr("Rating"));
+    orderModel_->setHeaderData(supplierIdx_, Qt::Horizontal, tr("Supplier"));
+    orderModel_->setHeaderData(productIdx_, Qt::Horizontal, tr("Product"));
+    orderModel_->setHeaderData(orderModel_->fieldIndex("name"), Qt::Horizontal, tr("Name"));
+    orderModel_->setHeaderData(orderModel_->fieldIndex("year"), Qt::Horizontal, tr("Year"));
+    orderModel_->setHeaderData(orderModel_->fieldIndex("rating"), Qt::Horizontal, tr("Rating"));
 
     // Populate the model
-    if (!model_->select()) {
-        showError(model_->lastError());
+    if (!orderModel_->select()) {
+        showError(orderModel_->lastError());
         return;
     }
 
     // Set the model and hide the ID column
-    ui.orderTable->setModel(model_.get());
+    ui.orderTable->setModel(orderModel_.get());
     ui.orderTable->setItemDelegate(new BookDelegate(ui.orderTable));
-    ui.orderTable->setColumnHidden(model_->fieldIndex("id"), true);
+    ui.orderTable->setColumnHidden(orderModel_->fieldIndex("id"), true);
     ui.orderTable->setSelectionMode(QAbstractItemView::SingleSelection);
 
     // Initialize the supplier combo box with the model
-    ui.supplierEdit->setModel(model_->relationModel(supplierIdx_));
-    ui.supplierEdit->setModelColumn(model_->relationModel(supplierIdx_)->fieldIndex("name"));
+    ui.supplierEdit->setModel(orderModel_->relationModel(supplierIdx_));
+    ui.supplierEdit->setModelColumn(orderModel_->relationModel(supplierIdx_)->fieldIndex("name"));
 
     // Initialize the product combo box with the model
-    ui.productEdit->setModel(model_->relationModel(productIdx_));
-    ui.productEdit->setModelColumn(model_->relationModel(productIdx_)->fieldIndex("name"));
+    ui.productEdit->setModel(orderModel_->relationModel(productIdx_));
+    ui.productEdit->setModelColumn(orderModel_->relationModel(productIdx_)->fieldIndex("name"));
+
+    // Initialize the products view with the model
+    initProductsView();
 
     QDataWidgetMapper *mapper = new QDataWidgetMapper(this);
-    mapper->setModel(model_.get());
+    mapper->setModel(orderModel_.get());
     mapper->setItemDelegate(new BookDelegate(this));
-    mapper->addMapping(ui.orderEdit, model_->fieldIndex("name"));
-    mapper->addMapping(ui.yearEdit, model_->fieldIndex("year"));
+    mapper->addMapping(ui.orderEdit, orderModel_->fieldIndex("name"));
+    mapper->addMapping(ui.yearEdit, orderModel_->fieldIndex("year"));
     mapper->addMapping(ui.supplierEdit, supplierIdx_);
     mapper->addMapping(ui.productEdit, productIdx_);
-    mapper->addMapping(ui.ratingEdit, model_->fieldIndex("rating"));
+    mapper->addMapping(ui.ratingEdit, orderModel_->fieldIndex("rating"));
 
     connect(ui.orderTable->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             mapper, SLOT(setCurrentModelIndex(QModelIndex)));
 
-    ui.orderTable->setCurrentIndex(model_->index(0, 0));
+    ui.orderTable->setCurrentIndex(orderModel_->index(0, 0));
 
     // Init the Add Order Window with the model and the view
-    addOrderWindow_->init(model_, ui.orderTable);
+    addOrderWindow_->init(orderModel_, ui.orderTable);
 
     connect(ui.addOrderButton, &QPushButton::clicked,
             this, &MainWindow::addOrder);
@@ -102,7 +106,37 @@ MainWindow::MainWindow(): addOrderWindow_(new AddOrderWindow(this))
 
 MainWindow::~MainWindow()
 {
+}
 
+void MainWindow::initProductsView()
+{
+    // Create the data model for order_items table
+    orderItemsModel_ = std::shared_ptr<QSqlRelationalTableModel>(new QSqlRelationalTableModel(ui.productsView));
+    orderItemsModel_->setTable("order_items");
+
+    // Remember the indexes of the columns
+    ordersIdx_ = orderItemsModel_->fieldIndex("order_id");
+    productsIdx_ = orderItemsModel_->fieldIndex("product_id");
+
+    // Set the relations to the other database tables.
+    // The next colums are foreign keys and the view
+    // should present the name fields instead of the ids
+    // (order_id and product_id)
+    /*
+     * The QSqlRelation class stores information about an
+     * SQL foreign key.
+     */
+    orderItemsModel_->setRelation(ordersIdx_, QSqlRelation("orders", "id", "name"));
+    orderItemsModel_->setRelation(productsIdx_, QSqlRelation("products", "id", "name"));
+
+    // Populate the model
+    if (!orderItemsModel_->select()) {
+        showError(orderItemsModel_->lastError());
+        return;
+    }
+
+    // Set the model
+    ui.productsView->setModel(orderItemsModel_.get());
 }
 
 void MainWindow::about()
@@ -125,7 +159,7 @@ void MainWindow::notificationHandler(const QString &name)
     // Populates the model with data from the table that was set via setTable().
     // TODO: valid way? emit model->select();
 
-    emit model_->dataChanged(QModelIndex(), QModelIndex());
+    emit orderModel_->dataChanged(QModelIndex(), QModelIndex());
 }
 
 void MainWindow::createMenuBar()

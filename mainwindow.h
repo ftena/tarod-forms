@@ -17,6 +17,7 @@ public:
     ~MainWindow();
 
 private:    
+    void initProductsView();
     void createMenuBar();
     void showError(const QSqlError &err);
 
@@ -28,8 +29,10 @@ private slots:
 private:
     Ui::MainWindow ui;
     std::unique_ptr<AddOrderWindow> addOrderWindow_;
-    std::shared_ptr<QSqlRelationalTableModel> model_;
-    int supplierIdx_, productIdx_;
+    std::shared_ptr<QSqlRelationalTableModel> orderModel_;
+    std::shared_ptr<QSqlRelationalTableModel> orderItemsModel_;
+    int orderIdx_, supplierIdx_, productIdx_;
+    int ordersIdx_, productsIdx_;
 };
 
 #endif
