@@ -19,12 +19,13 @@ public:
 private:    
     void initProductsView();
     void createMenuBar();
-    void showError(const QSqlError &err);
+    void showError(const QSqlError &err);    
 
 private slots:
     void about();
     void addOrder();
     void notificationHandler(const QString &name);
+    void showOrderItemsDetails(const QModelIndex &index);
 
 private:
     Ui::MainWindow ui;

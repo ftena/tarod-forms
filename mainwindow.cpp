@@ -78,9 +78,6 @@ MainWindow::MainWindow(): addOrderWindow_(new AddOrderWindow(this))
     ui.productEdit->setModel(orderModel_->relationModel(productIdx_));
     ui.productEdit->setModelColumn(orderModel_->relationModel(productIdx_)->fieldIndex("name"));
 
-    // Initialize the products view with the model
-    initProductsView();
-
     QDataWidgetMapper *mapper = new QDataWidgetMapper(this);
     mapper->setModel(orderModel_.get());
     mapper->setItemDelegate(new BookDelegate(this));
@@ -95,8 +92,14 @@ MainWindow::MainWindow(): addOrderWindow_(new AddOrderWindow(this))
 
     ui.orderTable->setCurrentIndex(orderModel_->index(0, 0));
 
+    // Initialize the products view with the model
+    initProductsView();
+
     // Init the Add Order Window with the model and the view
     addOrderWindow_->init(orderModel_, ui.orderTable);
+
+    connect(ui.orderTable->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+            this, SLOT(showOrderItemsDetails(QModelIndex)));
 
     connect(ui.addOrderButton, &QPushButton::clicked,
             this, &MainWindow::addOrder);
@@ -137,6 +140,21 @@ void MainWindow::initProductsView()
 
     // Set the model
     ui.productsView->setModel(orderItemsModel_.get());
+
+    // Filter the model to show only the order id selected in orders table
+    int row = ui.orderTable->currentIndex().row();
+    QModelIndex index = ui.orderTable->model()->index(row,
+                                                      0); // 0 = the id in orders table
+    orderItemsModel_->setFilter("order_id = '" + index.data().toString() + '\'') ;
+}
+
+void MainWindow::showOrderItemsDetails(const QModelIndex &index)
+{
+    // Filter the model to show only the order id selected in orders table
+    int row = index.row();
+    QModelIndex orderIndex = ui.orderTable->model()->index(row,
+                                                             0); // 0 = the id in orders table
+    orderItemsModel_->setFilter("order_id = '" + orderIndex.data().toString() + '\'') ;
 }
 
 void MainWindow::about()
