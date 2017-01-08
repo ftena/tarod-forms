@@ -53,7 +53,7 @@
 
 #include <QtSql>
 
-void addOrder(QSqlQuery &q, const QString &name, int year, const QVariant &supplierId,
+QVariant addOrder(QSqlQuery &q, const QString &name, int year, const QVariant &supplierId,
              const QVariant &productId, int rating)
 {
     q.addBindValue(name);
@@ -62,6 +62,7 @@ void addOrder(QSqlQuery &q, const QString &name, int year, const QVariant &suppl
     q.addBindValue(productId);
     q.addBindValue(rating);
     q.exec();
+    return q.lastInsertId();
 }
 
 QVariant addProduct(QSqlQuery &q, const QString &name, double price)
@@ -78,6 +79,14 @@ QVariant addSupplier(QSqlQuery &q, const QString &name, const QDate &created)
     q.addBindValue(created);
     q.exec();
     return q.lastInsertId();
+}
+
+void addOrderItem(QSqlQuery &q, const QVariant &productId, const QVariant &orderId, int quantity)
+{
+    q.addBindValue(productId);
+    q.addBindValue(orderId);
+    q.addBindValue(quantity);
+    q.exec();
 }
 
 QSqlError initDb()
@@ -133,19 +142,28 @@ QSqlError initDb()
 
     if (!q.prepare(QLatin1String("insert into orders(name, year, supplier, product, rating) values(?, ?, ?, ?, ?)")))
         return q.lastError();
-    addOrder(q, QLatin1String("Foundation"), 2012, supplier1Id, product1, 3);
-    addOrder(q, QLatin1String("Foundation and Empire"), 2012, supplier1Id, product1, 4);
-    addOrder(q, QLatin1String("Second Foundation"), 2012, supplier1Id, product1, 3);
-    addOrder(q, QLatin1String("Foundation's Edge"), 2012, supplier1Id, product1, 3);
-    addOrder(q, QLatin1String("Foundation and Earth"), 2012, supplier1Id, product1, 4);
-    addOrder(q, QLatin1String("Prelude to Foundation"), 2012, supplier1Id, product1, 3);
-    addOrder(q, QLatin1String("Forward the Foundation"), 2012, supplier1Id, product1, 3);
-    addOrder(q, QLatin1String("The Power and the Glory"), 2012, supplier2Id, product2, 4);
-    addOrder(q, QLatin1String("The Third Man"), 2012, supplier2Id, product2, 5);
-    addOrder(q, QLatin1String("Our Man in Havana"), 2012, supplier2Id, product2, 4);
-    addOrder(q, QLatin1String("Guards! Guards!"), 2013, supplier3Id, product3, 3);
-    addOrder(q, QLatin1String("Night Watch"), 2014, supplier3Id, product3, 3);
-    addOrder(q, QLatin1String("Going Postal"), 2015, supplier3Id, product3, 3);
+    QVariant order1 = addOrder(q, QLatin1String("Foundation"), 2012, supplier1Id, product1, 3);
+    QVariant order2 = addOrder(q, QLatin1String("Foundation and Empire"), 2012, supplier1Id, product1, 4);
+    QVariant order3 = addOrder(q, QLatin1String("Second Foundation"), 2012, supplier1Id, product1, 3);
+    QVariant order4 = addOrder(q, QLatin1String("Foundation's Edge"), 2012, supplier1Id, product1, 3);
+    QVariant order5 = addOrder(q, QLatin1String("Foundation and Earth"), 2012, supplier1Id, product1, 4);
+    QVariant order6 = addOrder(q, QLatin1String("Prelude to Foundation"), 2012, supplier1Id, product1, 3);
+    QVariant order7 = addOrder(q, QLatin1String("Forward the Foundation"), 2012, supplier1Id, product1, 3);
+    QVariant order8 = addOrder(q, QLatin1String("The Power and the Glory"), 2012, supplier2Id, product2, 4);
+    QVariant order9 = addOrder(q, QLatin1String("The Third Man"), 2012, supplier2Id, product2, 5);
+    QVariant order10 = addOrder(q, QLatin1String("Our Man in Havana"), 2012, supplier2Id, product2, 4);
+    QVariant order11 = addOrder(q, QLatin1String("Guards! Guards!"), 2013, supplier3Id, product3, 3);
+    QVariant order12 = addOrder(q, QLatin1String("Night Watch"), 2014, supplier3Id, product3, 3);
+    QVariant order13 = addOrder(q, QLatin1String("Going Postal"), 2015, supplier3Id, product3, 3);
+
+    if (!q.prepare(QLatin1String("insert into order_items(product_id, order_id, quantity) values(?, ?, ?)")))
+        return q.lastError();
+    addOrderItem(q, product1, order1, 1);
+    addOrderItem(q, product2, order2, 2);
+    addOrderItem(q, product3, order3, 3);
+    addOrderItem(q, product1, order4, 4);
+    addOrderItem(q, product2, order4, 5);
+    addOrderItem(q, product3, order4, 6);
 
     // Notifications
     if (!q.exec(QLatin1String("DROP RULE IF EXISTS notifications ON orders; CREATE RULE notifications AS ON UPDATE TO orders DO NOTIFY dbupdated")))
