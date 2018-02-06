@@ -26,7 +26,7 @@ MainWindow::MainWindow(): addOrderWindow_(new AddOrderWindow(this))
         return;
     }
 
-    // Subscribe to the notification "dbupdated" (created in postgresql)
+    // Subscribe to the notification "dbupdated" (created in postgresql -- see initdb.h)
     QSqlDatabase::database().driver()->subscribeToNotification("dbupdated");
 
     connect(QSqlDatabase::database().driver(), SIGNAL(notification(const QString&)),
@@ -175,7 +175,9 @@ void MainWindow::notificationHandler(const QString &name)
     qDebug() << Q_FUNC_INFO;
 
     // Populates the model with data from the table that was set via setTable().
-    // TODO: valid way? emit model->select();
+    // TODO: valid way the next line of code?
+
+    // emit model->select();
 
     emit orderModel_->dataChanged(QModelIndex(), QModelIndex());
 }
